@@ -9,6 +9,7 @@ Inspired by [FlutterGen](https://github.com/FlutterGen/flutter_gen).
 
 Using asset path string directly is not safe.
 
+![](./images/guide_0.png)
 
 ❌ Bad
 What would happen if you made a typo?
@@ -35,8 +36,11 @@ Glide.with(this)
 
 ### Setup 
 
-- Download file:  BuildAssets.jar
+- Download file: `BuildAssets.jar`
 - Put it into root Android Project 
+
+![](./images/guide_1.png)
+
 - Terminal > Run 
 ```
 java -jar BuildAssets.jar assets_path package_path 
@@ -47,7 +51,9 @@ For example:
 java -jar BuildAssets.jar app/src/main/assets app/src/main/java/ttpho/io/chat/gen
 ```
 
-File `BuildAssetManager.kt` is created on package ttpho.io.chat.gen
+File `BuildAssetManager.kt` is created on package `ttpho.io.chat.gen`
+
+![](./images/guide_2.png)
 
 
 ### Contributing
