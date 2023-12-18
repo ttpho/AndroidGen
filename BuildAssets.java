@@ -6,9 +6,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.*;
 
 public class BuildAssets {
 
+    private static final String KOTLIN_FILE_NAME = "BuildAssetManager.kt";
     private static final String ASSETS_FOLDER_NOT_FOUND = "Assets folder not found";
     private static final String ASSETS_FOLDER_EMPTY = "Assets is empty";
     private static final String UNKNOWN_CMD = "Unknown cmd, try \njavac BuildAssets.java && java BuildAssets app/src/main/assets app/src/main/java/com/company/app/package_name";
@@ -22,14 +24,18 @@ public class BuildAssets {
         final String kotlinPath = args[1];
 
         final File folderAssets = getAssetFolderPathRoot(assetsFolderPath);
-        if (folderAssets == null) return;
+        if (folderAssets == null)
+            return;
 
+        final String importPackage = getImportPackage(getPackageName(kotlinPath));
         final String folderAssetsPath = folderAssets.getAbsolutePath();
         final List<String> listFilePath = allFileInAssets(folderAssets);
+
         if (listFilePath.isEmpty()) {
             System.out.println(ASSETS_FOLDER_EMPTY);
             return;
         }
+        Collections.sort(listFilePath);
         List<String> lineKotlin = new ArrayList<>();
         for (final String filePath : listFilePath) {
 
@@ -44,14 +50,14 @@ public class BuildAssets {
 
         }
 
-        final String contentFile = buildFileKotlinContent(lineKotlin);
+        final String contentFile = buildFileKotlinContent(importPackage, lineKotlin);
 
-        final String fileFullPath = kotlinPath + "/BuildAssetManager.kt";
+        final String fileFullPath = kotlinPath + "/" + KOTLIN_FILE_NAME;
         final Path path = Paths.get(fileFullPath);
         try {
             final File directory = new File(kotlinPath);
             if (!directory.exists()) {
-               directory.mkdir();
+                directory.mkdir();
             }
             writeFileWithString(path, contentFile);
             System.out.println("DONE!");
@@ -60,7 +66,22 @@ public class BuildAssets {
         }
     }
 
-    private static String buildFileKotlinContent(final List<String> lineCode) {
+    private static String getPackageName(final String kotlinPath) {
+        if (kotlinPath.contains("java/")) {
+            return kotlinPath.split("java/")[1].replace("/", ".");
+        }
+        return "";
+    }
+
+    private static String getImportPackage(final String packageName) {
+        if (packageName.isEmpty()) {
+            return "";
+        }
+
+        return String.format("package %s", packageName);
+    }
+
+    private static String buildFileKotlinContent(final String importPackage, final List<String> lineCode) {
         StringBuilder lineCodeKotlin = new StringBuilder();
 
         for (final String line : lineCode) {
@@ -68,10 +89,13 @@ public class BuildAssets {
         }
 
         return String.format("""
+                // GENERATED CODE - DO NOT MODIFY BY HAND
+                %s
+
                 object BuildAssetManager {
                 %s
                 }
-                """, lineCodeKotlin);
+                """, importPackage, lineCodeKotlin);
     }
 
     private static boolean isIgnoreFile(File file) {
@@ -126,4 +150,3 @@ public class BuildAssets {
         return name.toString().split("\\.")[0].replace("-", "_");
     }
 }
-

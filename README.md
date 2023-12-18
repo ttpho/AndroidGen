@@ -58,8 +58,9 @@ File `BuildAssetManager.kt` is created on package `ttpho.io.chat.gen`
 
 ### Contributing
 
-- Update `BuildAssets.java` 
-- Build jar 
+- Update file `BuildAssets.java` 
+- Update file `VERSION`
+- Build file `BuildAssets.jar` 
 
 ```
 javac BuildAssets.java
